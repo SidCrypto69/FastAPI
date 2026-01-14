@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Health Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px;
+            width: 100%;
+            background: #3498db;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .danger {
+            background: #e74c3c;
+        }
+        .danger:hover {
+            background: #c0392b;
+        }
+        pre {
+            background: #eee;
+            padding: 15px;
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Patient Health Management System</h1>
+
+    <!-- CREATE PATIENT -->
+    <div class="section">
+        <h2>Create Patient</h2>
+        <form id="patientForm">
+            <label>ID</label><input name="id">
+            <label>Name</label><input name="name">
+            <label>City</label><input name="city">
+            <label>Age</label><input name="age" type="number">
+            <label>Gender</label>
+            <select name="gender">
+                <option>Male</option><option>Female</option><option>Others</option>
+            </select>
+            <label>Height (m)</label><input name="height" type="number" step="0.01">
+            <label>Weight (kg)</label><input name="weight" type="number" step="0.1">
+            <label>Phone</label><input name="phone">
+            <label>Email</label><input name="email" type="email">
+            <label>Smoker</label>
+            <select name="smoker"><option>Yes</option><option>No</option></select>
+            <label>Activity Level</label>
+            <select name="activity_level"><option>Low</option><option>Medium</option><option>High</option></select>
+            <label>Last Visit Date</label><input name="last_visit_date" type="date">
+
+            <h3>Medical History</h3>
+            <label>Conditions (comma separated)</label><input name="conditions">
+            <label>Surgeries (comma separated)</label><input name="surgeries">
+            <label>Medications (comma separated)</label><input name="medications">
+            <label>Allergies (comma separated)</label><input name="allergies">
+
+            <button type="submit">Create Patient</button>
+        </form>
+    </div>
+
+    <!-- UPDATE PATIENT -->
+    <div class="section">
+        <h2>Update Patient (Update Anything)</h2>
+        <label>Patient ID (Required)</label><input id="update_id">
+        <label>Name</label><input id="update_name">
+        <label>City</label><input id="update_city">
+        <label>Age</label><input id="update_age" type="number">
+        <label>Phone</label><input id="update_phone">
+        <label>Email</label><input id="update_email" type="email">
+        <label>Height (m)</label><input id="update_height" type="number" step="0.01">
+        <label>Weight (kg)</label><input id="update_weight" type="number" step="0.1">
+        <label>Smoker</label>
+        <select id="update_smoker"><option>Yes</option><option>No</option></select>
+        <label>Activity Level</label>
+        <select id="update_activity_level"><option>Low</option><option>Medium</option><option>High</option></select>
+        <label>Last Visit Date</label><input id="update_last_visit" type="date">
+
+        <h3>Medical History (Optional)</h3>
+        <label>Conditions (comma separated)</label><input id="update_conditions">
+        <label>Surgeries (comma separated)</label><input id="update_surgeries">
+        <label>Medications (comma separated)</label><input id="update_medications">
+        <label>Allergies (comma separated)</label><input id="update_allergies">
+
+        <button id="update_button">Update Patient</button>
+    </div>
+
+    <!-- DELETE PATIENT -->
+    <div class="section">
+        <h2>Delete Patient</h2>
+        <label>Patient ID</label><input id="delete_id">
+        <button class="danger" id="delete_button">Delete Patient</button>
+    </div>
+
+     <!-- VIEW PATIENTS -->
+    <div class="section">
+        <h2>View All Patients</h2>
+
+        <label>Sort By</label>
+        <select id="sort_field">
+            <option value="id">ID</option>
+            <option value="name">Name</option>
+            <option value="age">Age</option>
+            <option value="bmi">BMI</option>
+        </select>
+
+        <label>Order</label>
+        <select id="sort_order">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
+
+        <button id="view_button">View Patients</button>
+
+        <table border="1" id="patients_table" style="width:100%; margin-top:15px; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>City</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Height</th>
+                    <th>Weight</th>
+                    <th>BMI</th>
+                    <th>Verdict</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Smoker</th>
+                    <th>Activity Level</th>
+                    <th>Last Visit</th>
+                    <th>Medical History</th>
+                </tr>
+            </thead>
+            <tbody id="patients_body"></tbody>
+        </table>
+    </div>
+
+    <!-- SLOTS + BOOKING -->
+    <div class="section">
+      <h2>Check Slots & Book Appointment</h2>
+
+      <label>Patient ID (for booking)</label>
+      <input id="book_patient_id" placeholder="P001">
+
+      <label>Provider ID</label>
+      <input id="slot_provider_id" placeholder="D001">
+
+      <label>Date</label>
+      <input id="slot_day" type="date">
+
+      <button type="button" id="slots_button">Show Available Slots</button>
+
+      <div id="slots_status" style="margin-top:10px;"></div>
+
+      <table border="1" id="slots_table" style="width:100%; margin-top:15px; border-collapse:collapse; display:none;">
+        <thead>
+          <tr>
+            <th>Start</th>
+            <th>End</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="slots_body"></tbody>
+      </table>
+    </div>
+
+      <!-- CHATBOT -->
+    <div class="section">
+        <h2>Patient Chatbot</h2>
+
+        <label>Patient ID</label>
+        <input id="chat_patient_id" placeholder="P001">
+
+        <label>Ask a question</label>
+        <input id="chat_message" placeholder="What is my BMI?">
+
+        <button type="button" id="chat_send">Send</button>
+
+        <pre id="chat_log" style="margin-top:15px; height:200px; overflow-y:auto;"></pre>
+    </div>
+    
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // CREATE
+  document.getElementById("patientForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const raw = Object.fromEntries(new FormData(e.target));
+
+    const patient = {
+      ...raw,
+      age: Number(raw.age),
+      height: Number(raw.height),
+      weight: Number(raw.weight),
+      medical_history: {
+        conditions: raw.conditions ? raw.conditions.split(",").map(s => s.trim()).filter(Boolean) : [],
+        surgeries: raw.surgeries ? raw.surgeries.split(",").map(s => s.trim()).filter(Boolean) : [],
+        medications: raw.medications ? raw.medications.split(",").map(s => s.trim()).filter(Boolean) : [],
+        allergies: raw.allergies ? raw.allergies.split(",").map(s => s.trim()).filter(Boolean) : []
+      }
+    };
+
+    const res = await fetch("/create", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(patient)
+    });
+
+    const data = await res.json();
+    alert(data.message || "Created");
+  };
+
+  // UPDATE
+  document.getElementById("update_button").addEventListener("click", async () => {
+    const id = document.getElementById("update_id").value.trim();
+    if (!id) { alert("Patient ID is required"); return; }
+
+    const payload = {};
+    const get = (x) => document.getElementById(x).value;
+
+    if (get("update_name")) payload.name = get("update_name");
+    if (get("update_city")) payload.city = get("update_city");
+    if (get("update_age")) payload.age = Number(get("update_age"));
+    if (get("update_phone")) payload.phone = get("update_phone");
+    if (get("update_email")) payload.email = get("update_email");
+    if (get("update_height")) payload.height = Number(get("update_height"));
+    if (get("update_weight")) payload.weight = Number(get("update_weight"));
+    if (get("update_smoker")) payload.smoker = get("update_smoker");
+    if (get("update_activity_level")) payload.activity_level = get("update_activity_level");
+    if (get("update_last_visit")) payload.last_visit_date = get("update_last_visit");
+
+    const mh = {};
+    if (get("update_conditions")) mh.conditions = get("update_conditions").split(",").map(s => s.trim()).filter(Boolean);
+    if (get("update_surgeries")) mh.surgeries = get("update_surgeries").split(",").map(s => s.trim()).filter(Boolean);
+    if (get("update_medications")) mh.medications = get("update_medications").split(",").map(s => s.trim()).filter(Boolean);
+    if (get("update_allergies")) mh.allergies = get("update_allergies").split(",").map(s => s.trim()).filter(Boolean);
+    if (Object.keys(mh).length) payload.medical_history = mh;
+
+    if (Object.keys(payload).length === 0) { alert("Nothing to update"); return; }
+
+    const res = await fetch(`/edit/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    alert(data.message || "Updated");
+  });
+
+  // DELETE
+  document.getElementById("delete_button").addEventListener("click", async () => {
+    const id = document.getElementById("delete_id").value.trim();
+    if (!id) { alert("Patient ID required"); return; }
+
+    const res = await fetch(`/delete/${encodeURIComponent(id)}`, { method: "DELETE" });
+    const data = await res.json();
+    alert(data.message || "Deleted");
+  });
+
+  // VIEW
+ document.getElementById("view_button").addEventListener("click", loadPatients);
+
+async function loadPatients() {
+  const res = await fetch("/view");
+  const data = await res.json();
+
+  const patients = Object.entries(data).map(([id, p]) => ({ id, ...p }));
+
+  const tbody = document.getElementById("patients_body");
+  tbody.innerHTML = "";
+
+  patients.forEach((p, index) => {
+    const h = Number(p.height || 0);
+    const w = Number(p.weight || 0);
+    const bmiNum = (h > 0 && w > 0) ? (w / (h * h)) : null;
+    const bmi = bmiNum ? bmiNum.toFixed(2) : "";
+
+    let verdict = "";
+    if (bmiNum !== null) {
+      if (bmiNum < 18.5) verdict = "Underweight";
+      else if (bmiNum < 25) verdict = "Normal";
+      else if (bmiNum < 30) verdict = "Overweight";
+      else verdict = "Obese";
+    }
+
+    tbody.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${p.id}</td>
+        <td>${p.name || ""}</td>
+        <td>${p.city || ""}</td>
+        <td>${p.age ?? ""}</td>
+        <td>${p.gender || ""}</td>
+        <td>${p.height ?? ""}</td>
+        <td>${p.weight ?? ""}</td>
+        <td>${bmi}</td>
+        <td>${verdict}</td>
+        <td>${p.phone || ""}</td>
+        <td>${p.email || ""}</td>
+        <td>${p.smoker || ""}</td>
+        <td>${p.activity_level || ""}</td>
+        <td>${p.last_visit_date || ""}</td>
+        <td><button type="button" class="history-btn" data-index="${index}">View History</button></td>
+      </tr>
+      <tr id="history_${index}" style="display:none; background:#f9f9f9;">
+        <td colspan="15">
+          <strong>Conditions:</strong> ${(p.medical_history?.conditions || []).join(", ") || "-"}<br>
+          <strong>Surgeries:</strong> ${(p.medical_history?.surgeries || []).join(", ") || "-"}<br>
+          <strong>Medications:</strong> ${(p.medical_history?.medications || []).join(", ") || "-"}<br>
+          <strong>Allergies:</strong> ${(p.medical_history?.allergies || []).join(", ") || "-"}
+        </td>
+      </tr>
+    `);
+  });
+
+  document.querySelectorAll(".history-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const idx = btn.getAttribute("data-index");
+      const row = document.getElementById(`history_${idx}`);
+      row.style.display = (row.style.display === "none") ? "table-row" : "none";
+    });
+  });
+}
+
+// SLOTS + BOOKING 
+  document.getElementById("slots_button").addEventListener("click", loadSlots);
+
+  async function loadSlots() {
+    const providerId = document.getElementById("slot_provider_id").value.trim();
+    const day = document.getElementById("slot_day").value; // YYYY-MM-DD
+    const statusEl = document.getElementById("slots_status");
+    const table = document.getElementById("slots_table");
+    const tbody = document.getElementById("slots_body");
+
+    if (!providerId || !day) {
+      alert("Provider ID and Date are required");
+      return;
+    }
+
+    statusEl.textContent = "Loading slots...";
+    table.style.display = "none";
+    tbody.innerHTML = "";
+
+    try {
+      const res = await fetch(`/slots/${encodeURIComponent(providerId)}/${encodeURIComponent(day)}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        statusEl.textContent = `Error: ${data.detail || JSON.stringify(data)}`;
+        return;
+      }
+
+      const slots = data.available || [];
+      if (slots.length === 0) {
+        statusEl.textContent = `No available slots for ${providerId} on ${day}.`;
+        return;
+      }
+
+      statusEl.textContent = `Available slots for ${providerId} on ${day}:`;
+      table.style.display = "";
+
+      slots.forEach((s) => {
+        // FastAPI returns timestamps; convert to readable (safe fallback)
+        const startAt = String(s.start_at).replace("T", " ").slice(0, 16);
+        const endAt = String(s.end_at).replace("T", " ").slice(0, 16);
+
+        tbody.insertAdjacentHTML("beforeend", `
+          <tr>
+            <td>${startAt}</td>
+            <td>${endAt}</td>
+            <td><button type="button" class="book-btn" data-provider="${providerId}" data-start="${startAt}" data-end="${endAt}">Book</button></td>
+          </tr>
+        `);
+      });
+
+      document.querySelectorAll(".book-btn").forEach(btn => {
+        btn.addEventListener("click", () => bookSlot(btn.dataset.provider, btn.dataset.start, btn.dataset.end));
+      });
+
+    } catch (err) {
+      statusEl.textContent = `Network error: ${err}`;
+    }
+  }
+
+  async function bookSlot(providerId, startAt, endAt) {
+    const patientId = document.getElementById("book_patient_id").value.trim();
+    const statusEl = document.getElementById("slots_status");
+
+    if (!patientId) {
+      alert("Patient ID is required for booking");
+      return;
+    }
+
+    const ok = confirm(`Confirm booking?\nProvider: ${providerId}\nPatient: ${patientId}\n${startAt} → ${endAt}`);
+    if (!ok) return;
+
+    statusEl.textContent = "Booking...";
+
+    try {
+      const res = await fetch("/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          provider_id: providerId,
+          patient_id: patientId,
+          start_at: startAt,
+          end_at: endAt
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        statusEl.textContent = `Booking failed: ${data.detail || JSON.stringify(data)}`;
+        return;
+      }
+
+      statusEl.textContent = "✅ Appointment booked!";
+      // Refresh slots so the booked one disappears
+      await loadSlots();
+
+    } catch (err) {
+      statusEl.textContent = `Network error: ${err}`;
+    }
+  }
+  
+//Chat
+// CHAT WIRING
+const chatBtn = document.getElementById("chat_send");
+if (!chatBtn) console.error("chat_send button not found");
+
+chatBtn.addEventListener("click", sendChat);
+
+async function sendChat() {
+  const pidEl = document.getElementById("chat_patient_id");
+  const msgEl = document.getElementById("chat_message");
+  const logEl = document.getElementById("chat_log");
+
+  if (!pidEl || !msgEl || !logEl) {
+    alert("Chat UI elements missing in HTML");
+    return;
+  }
+
+  const pid = pidEl.value.trim();
+  const msg = msgEl.value.trim();
+
+  if (!pid || !msg) {
+    alert("Patient ID and message are required");
+    return;
+  }
+
+  logEl.textContent += `\nYou: ${msg}\n`;
+
+  try {
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ patient_id: pid, message: msg })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      logEl.textContent += `Bot (error): ${data.detail || JSON.stringify(data)}\n`;
+    } else {
+      logEl.textContent += `Bot: ${data.reply}\n`;
+    }
+
+    logEl.scrollTop = logEl.scrollHeight;
+    msgEl.value = "";
+    msgEl.focus();
+  } catch (err) {
+    logEl.textContent += `Bot (network error): ${err}\n`;
+  }
+}
+});
+</script>
+</div>
+</body>
+</html>
